@@ -1,0 +1,5 @@
+{
+  "name": "Growatt Solar Dashboard",
+  "description": "A full-stack web app that connects to the Growatt solar inverter API to display plant and device data.",
+  "requestFramePermissions": []
+}

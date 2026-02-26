@@ -1,0 +1,13 @@
+{
+  "name": "growatt-solar-dashboard",
+  "version": "1.0.0",
+  "description": "Growatt SPF 5000ES Solar Dashboard",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "dotenv": "^16.4.0"
+  }
+}

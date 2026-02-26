@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Solar Dashboard — SPF 5000ES</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Header -->
+    <header>
+      <div class="header-left">
+        <div class="logo">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/>
+            <line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/>
+            <line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+        </div>
+        <div>
+          <h1 id="plantName">Solar Dashboard</h1>
+          <span class="subtitle" id="deviceInfo">Connecting...</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="status-badge" id="statusBadge">
+          <span class="status-dot"></span>
+          <span id="statusText">Offline</span>
+        </div>
+        <div class="last-update" id="lastUpdate">—</div>
+      </div>
+    </header>
+
+    <!-- Connection Screen -->
+    <div id="connectScreen" class="connect-screen">
+      <div class="connect-box">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="1.5">
+          <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/>
+          <line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/>
+          <line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+        <h2>Growatt SPF 5000ES</h2>
+        <p>Connect to your solar system</p>
+        <button id="connectBtn" onclick="connect()">Connect</button>
+        <div id="connectError" class="error-msg"></div>
+      </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard" class="dashboard hidden">
+
+      <!-- Energy Flow Diagram -->
+      <section class="energy-flow">
+        <div class="flow-node pv-node">
+          <div class="flow-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/>
+              <line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/>
+              <line x1="21" y1="12" x2="23" y2="12"/>
+            </svg>
+          </div>
+          <div class="flow-label">PV Solar</div>
+          <div class="flow-value" id="pvPower">0 W</div>
+        </div>
+
+        <div class="flow-arrow pv-to-inv" id="arrowPvInv">
+          <svg width="40" height="24"><path d="M0 12 H30 L24 6 M30 12 L24 18" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+        </div>
+
+        <div class="flow-node inv-node">
+          <div class="flow-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12h6"/><path d="M12 9v6"/>
+            </svg>
+          </div>
+          <div class="flow-label">Inverter</div>
+          <div class="flow-value" id="invStatus">—</div>
+        </div>
+
+        <div class="flow-arrow inv-to-load" id="arrowInvLoad">
+          <svg width="40" height="24"><path d="M0 12 H30 L24 6 M30 12 L24 18" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+        </div>
+
+        <div class="flow-node load-node">
+          <div class="flow-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M5 3v18l7-3 7 3V3z"/>
+            </svg>
+          </div>
+          <div class="flow-label">Load</div>
+          <div class="flow-value" id="loadPower">0 W</div>
+        </div>
+
+        <div class="flow-arrow inv-to-batt" id="arrowInvBatt">
+          <svg width="24" height="40"><path d="M12 0 V26 L6 20 M12 26 L18 20" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+        </div>
+
+        <div class="flow-node batt-node">
+          <div class="flow-icon batt-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="6" y="4" width="12" height="18" rx="1"/><line x1="10" y1="1" x2="14" y2="1"/>
+              <rect x="8" y="12" width="8" height="8" fill="currentColor" opacity="0.3" rx="0.5"/>
+            </svg>
+          </div>
+          <div class="flow-label">Battery</div>
+          <div class="flow-value" id="battSoc">0%</div>
+        </div>
+
+        <div class="flow-arrow inv-to-grid" id="arrowInvGrid">
+          <svg width="40" height="24"><path d="M0 12 H30 L24 6 M30 12 L24 18" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+        </div>
+
+        <div class="flow-node grid-node">
+          <div class="flow-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+            </svg>
+          </div>
+          <div class="flow-label">Grid</div>
+          <div class="flow-value" id="gridPower">0 W</div>
+        </div>
+      </section>
+
+      <!-- Data Cards -->
+      <section class="cards">
+        <!-- PV Card -->
+        <div class="card pv-card">
+          <div class="card-header">
+            <h3>☀️ PV Solar</h3>
+            <span class="card-badge" id="pvBadge">—</span>
+          </div>
+          <div class="card-grid">
+            <div class="card-item">
+              <span class="item-label">Power</span>
+              <span class="item-value" id="pvPowerCard">0 W</span>
+            </div>
+            <div class="card-item">
+              <span class="item-label">Voltage</span>
+              <span class="item-value" id="pvVoltage">0 V</span>
+            </div>
+            <div class="card-item">
+              <span class="item-label">Today</span>
+              <span class="item-value" id="pvToday">0 kWh</span>
+            </div>
+            <div class="card-item">
+              <span class="item-label">Total</span>
+              <span class="item-value" id="pvTotal">0 kWh</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Battery Card -->
+        <div class="card batt-card">
+          <div class="card-header">
+            <h3>🔋 Battery</h3>
+            <span class="card-badge" id="battBadge">—</span>
+          </div>
+          <div class="soc-bar">
+            <div class="soc-fill" id="socFill" style="width: 0%"></div>
+            <span class="soc-text" id="socText">0%</span>
+          </div>
+          <div class="card-grid">
+            <div class="card-item">
+              <span class="item-label">Voltage</span>
+              <span class="item-value" id="battVoltage">0 V</span>
+            </div>
+            <div class="card-item">
+              <span class="item-label">Charge</span>
+              <span class="item-value" id="battCharge">0 W</span>
+            </div>
+            <div class="card-item">
+              <span class="item-label">Discharge</span>
+              <span class="item-value" id="battDischarge">0 W</span>
+            </div>
+            <div class="card-item">
+              <span class="item-label">Temp</span>
+              <span class="item-value" id="battTemp">0 °C</span>
+            </div>
+            <div class="card-item">
+              <span class="item-label">Charged Today</span>
+              <span class="item-value" id="battChargeToday">0 kWh</span>
+            </div>
+            <div class="card-item">
+              <span class="item-label">Discharged Today</span>
+              <span class="item-value" id="battDischargeToday">0 kWh</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Load Card -->
+        <div class="card load-card">
+          <div class="card-header">
+            <h3>🏠 Load</h3>
+            <span class="card-badge" id="loadBadge">—</span>
+          </div>
+          <div class="card-grid">
+            <div class="card-item">
+              <span class="item-label">Power</span>
+              <span class="item-value" id="loadPowerCard">0 W</span>
+            </div>
+            <div class="card-item">
+              <span class="item-label">Voltage</span>
+              <span class="item-value" id="loadVoltage">0 V</span>
+            </div>
+            <div class="card-item">
+              <span class="item-label">Frequency</span>
+              <span class="item-value" id="loadFreq">0 Hz</span>
+            </div>
+            <div class="card-item">
+              <span class="item-label">Today</span>
+              <span class="item-value" id="loadToday">0 kWh</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Grid Card -->
+        <div class="card grid-card">
+          <div class="card-header">
+            <h3>⚡ Grid</h3>
+            <span class="card-badge" id="gridBadge">—</span>
+          </div>
+          <div class="card-grid">
+            <div class="card-item">
+              <span class="item-label">Power</span>
+              <span class="item-value" id="gridPowerCard">0 W</span>
+            </div>
+            <div class="card-item">
+              <span class="item-label">Voltage</span>
+              <span class="item-value" id="gridVoltage">0 V</span>
+            </div>
+            <div class="card-item">
+              <span class="item-label">Import Today</span>
+              <span class="item-value" id="gridImport">0 kWh</span>
+            </div>
+            <div class="card-item">
+              <span class="item-label">Export Today</span>
+              <span class="item-value" id="gridExport">0 kWh</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Inverter Card -->
+        <div class="card inv-card">
+          <div class="card-header">
+            <h3>🔧 Inverter</h3>
+            <span class="card-badge" id="invBadge">—</span>
+          </div>
+          <div class="card-grid">
+            <div class="card-item">
+              <span class="item-label">Model</span>
+              <span class="item-value" id="invModel">SPF 5000ES</span>
+            </div>
+            <div class="card-item">
+              <span class="item-label">Serial</span>
+              <span class="item-value mono" id="invSerial">—</span>
+            </div>
+            <div class="card-item">
+              <span class="item-label">Temperature</span>
+              <span class="item-value" id="invTemp">0 °C</span>
+            </div>
+            <div class="card-item">
+              <span class="item-label">Status</span>
+              <span class="item-value" id="invStatusCard">—</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Energy Summary Card -->
+        <div class="card summary-card">
+          <div class="card-header">
+            <h3>📊 Energy Summary</h3>
+          </div>
+          <div class="card-grid">
+            <div class="card-item">
+              <span class="item-label">Today</span>
+              <span class="item-value highlight" id="energyToday">0 kWh</span>
+            </div>
+            <div class="card-item">
+              <span class="item-label">Used Today</span>
+              <span class="item-value" id="energyMonth">0 kWh</span>
+            </div>
+            <div class="card-item">
+              <span class="item-label">Total</span>
+              <span class="item-value" id="energyTotal">0 kWh</span>
+            </div>
+            <div class="card-item">
+              <span class="item-label">Current Output</span>
+              <span class="item-value highlight" id="currentOutput">0 kW</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <footer>
+        <span>Auto-refresh: 5 min</span>
+        <button class="refresh-btn" onclick="fetchData()">↻ Refresh Now</button>
+        <a href="/api/debug" target="_blank" class="debug-link">Debug API</a>
+      </footer>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
+
